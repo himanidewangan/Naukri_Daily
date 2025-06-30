@@ -1,9 +1,4 @@
 
-Awesome! Since your script is already working, let’s now add a mail alert using SMTP to notify you once the resume is uploaded successfully.
-
-✅ You’ll Need:
-A Gmail ID (preferably a separate one for automation).
-
 Generate an App Password if you're using Gmail (you can’t use your regular Gmail password due to security).
 
 🔐 Step 1: Set Up App Password (once)
