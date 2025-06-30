@@ -10,8 +10,8 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 # ==== 🔐 Your Credentials & File ====
-NAUKRI_EMAIL = 'dpratishraj7991@gmail.com'
-NAUKRI_PASSWORD = 'Bittu@7991'
+NAUKRI_EMAIL = 'EMAILHERE'
+NAUKRI_PASSWORD = 'PASSWORDHERE'
 RESUME_PATH = r'C:\Users\hp\Desktop\Naukri\PratishDewanganMLE.pdf' # Make sure this is correct
 
 # ==== 🚀 Main Function ====
