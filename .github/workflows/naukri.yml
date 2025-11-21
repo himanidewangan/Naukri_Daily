@@ -25,5 +25,5 @@ jobs:
         env:
           EMAIL: ${{ secrets.EMAIL }}
           PASSWORD: ${{ secrets.PASSWORD }}
-          RESUME_PATH: "./resume.pdf"
+          RESUME_PATH: "./HimaniCV.pdf"
         run: python NaukriUpdateDaily.py
