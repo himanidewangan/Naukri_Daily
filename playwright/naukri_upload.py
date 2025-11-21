@@ -1,58 +1,54 @@
 import os
-import time
 from playwright.sync_api import sync_playwright
+import time
 
 EMAIL = os.getenv("EMAIL")
 PASSWORD = os.getenv("PASSWORD")
-RESUME_PATH = os.path.abspath("HimaniCV.pdf")
+
+# Your resume file (make sure workflow downloads it)
+RESUME_PATH = "HimaniCV.pdf"
+
 
 def run():
-    print("Starting Playwright...")
-
-    if not os.path.exists(RESUME_PATH):
-        print("❌ Resume file not found:", RESUME_PATH)
-        return
-
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True, args=["--disable-http2"])
+        print("Starting Playwright...")
+
+        browser = p.chromium.launch(headless=True)
         context = browser.new_context()
         page = context.new_page()
 
         print("Opening login page…")
-        page.goto("https://www.naukri.com/nlogin/login")
+        page.goto("https://www.naukri.com/nlogin/login", timeout=60000)
 
-        # Login
-        page.fill("#usernameField", EMAIL)
-        page.fill("#passwordField", PASSWORD)
+        # Wait for username field to load
+        page.wait_for_selector("input[placeholder='Enter your active Email ID / Username']", timeout=40000)
+
+        print("Filling login credentials…")
+        page.fill("input[placeholder='Enter your active Email ID / Username']", EMAIL)
+        page.fill("input[placeholder='Enter your password']", PASSWORD)
+
+        print("Clicking login button…")
         page.click("button[type='submit']")
-        print("Logged in… waiting for home page…")
 
-        page.wait_for_timeout(8000)
+        # Wait for login redirect
+        page.wait_for_load_state("networkidle")
+        time.sleep(5)
 
-        # Click profile icon (top right)
-        print("Clicking profile icon…")
-        page.click("img[alt='naukri user profile']")
+        print("Logged in successfully!")
 
-        page.wait_for_timeout(5000)
+        # Go to the profile page
+        print("Opening profile page…")
+        page.goto("https://www.naukri.com/mnjuser/profile", timeout=60000)
+        page.wait_for_load_state("networkidle")
+        time.sleep(5)
 
-        # Click "View & Update Profile"
-        print("Opening profile editor…")
-        page.click("text=View & Update Profile")
-
-        page.wait_for_timeout(8000)
-
-        # Scroll to resume upload input
-        print("Scrolling…")
-        page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
-        page.wait_for_timeout(3000)
-
+        # Upload resume
         print("Uploading resume…")
         page.set_input_files("input[type='file']", RESUME_PATH)
 
-        print("Waiting for upload…")
-        time.sleep(10)
+        time.sleep(5)
 
-        print("✔ SUCCESS: Resume uploaded!")
+        print("Resume upload completed!")
 
         browser.close()
 
