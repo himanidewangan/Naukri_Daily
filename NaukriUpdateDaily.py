@@ -10,9 +10,9 @@ from selenium.webdriver.support import expected_conditions as EC
 # CONFIG
 # ----------------------
 
-NAUKRI_EMAIL = os.getenv("NAUKRI_EMAIL")
-NAUKRI_PASSWORD = os.getenv("NAUKRI_PASSWORD")
-RESUME_PATH = os.path.abspath("resume.pdf")
+NAUKRI_EMAIL = os.getenv("EMAIL")
+NAUKRI_PASSWORD = os.getenv("PASSWORD")
+RESUME_PATH = os.path.abspath("HimaniCV.pdf")
 
 # ----------------------
 # BROWSER SETUP
