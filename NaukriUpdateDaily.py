@@ -10,9 +10,9 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 # ==== 🔐 Your Credentials & File ====
-NAUKRI_EMAIL = 'EMAILHERE'
-NAUKRI_PASSWORD = 'PASSWORDHERE'
-RESUME_PATH = r'C:\Users\hp\Desktop\Naukri\PratishDewanganMLE.pdf' # Make sure this is correct
+NAUKRI_EMAIL = 'humanidewangan244@gmail.com'
+NAUKRI_PASSWORD = 'Himani@2000'
+RESUME_PATH = r'C:\Users\himani.dewangan\Naukri_Daily\HimaniCV.pdf' # Make sure this is correct
 
 # ==== 🚀 Main Function ====
 def upload_resume():
@@ -46,7 +46,7 @@ def upload_resume():
 
         # Step 4: Click Login
         driver.find_element(By.XPATH, "//button[@type='submit']").click()
-        print("✅ Logged in successfully.")
+        print(" Logged in successfully.")
         time.sleep(5)
 
         # Step 5: Go to profile page
@@ -56,26 +56,26 @@ def upload_resume():
         # Step 6: Upload resume
         upload_input = wait.until(EC.presence_of_element_located((By.XPATH, "//input[@type='file']")))
         upload_input.send_keys(RESUME_PATH)
-        print("✅ Resume uploaded successfully!")
+        print("Resume uploaded successfully!")
 
         time.sleep(5)
         send_success_email()
 
 
     except Exception as e:
-        print("❌ Error occurred:", e)
+        print(" Error occurred:", e)
         driver.save_screenshot("error.png")
     finally:
         driver.quit()
 
 
 def send_success_email():
-    sender_email = "dpratishraj7991@gmail.com"             # The Gmail used to send the mail
+    sender_email = "humanidewangan244@gmail.com"             # The Gmail used to send the mail
     sender_app_password = "zcjordzxmcoiaemy"
-    receiver_email = "dpratishraj7991@gmail.com"      # Your personal email
+    receiver_email = "humanidewangan244@gmail.com"      # Your personal email
 
-    subject = "✅ Naukri Resume Upload Success"
-    body = "Hi Pratish,\n\nYour resume was successfully uploaded to Naukri.com.\n\nRegards,\nYour Automation Bot 🤖"
+    subject = " Naukri Resume Upload Success"
+    body = "Hi Himani,\n\nYour resume was successfully uploaded to Naukri.com.\n\nRegards,\nYour Automation Bot 🤖"
 
     msg = MIMEMultipart()
     msg['From'] = sender_email
@@ -90,16 +90,16 @@ def send_success_email():
         server.login(sender_email, sender_app_password)
         server.send_message(msg)
         server.quit()
-        print("📧 Success email sent!")
+        print(" Success email sent!")
     except Exception as e:
-        print("❌ Failed to send email:", e)
+        print(" Failed to send email:", e)
 
 # ==== 🔁 Run It ====
 if __name__ == "__main__":
     if os.path.exists(RESUME_PATH):
         upload_resume()
     else:
-        print(f"❌ Resume file not found at: {RESUME_PATH}")
+        print(f" Resume file not found at: {RESUME_PATH}")
 
 
 
