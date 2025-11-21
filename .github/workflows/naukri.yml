@@ -1,29 +1,32 @@
-name: Update Naukri Resume
+name: Naukri Resume Upload
 
 on:
   schedule:
-    - cron: "0 3 * * *"   # Runs every day at 8:30 AM IST
-  workflow_dispatch:       # Allows manual run
+    - cron: "0 4 * * *"   # Daily at 9:30 AM IST
+  workflow_dispatch:
 
 jobs:
-  run-script:
+  upload-resume:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Set up Python
+      - name: Install Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
 
-      - name: Install requirements
-        run: pip install -r requirements.txt
+      - name: Install Playwright
+        run: |
+          pip install playwright
+          playwright install chromium
+          sudo apt-get install -y xvfb
 
-      - name: Run Script
+      - name: Run with Xvfb (real browser mode)
         env:
           EMAIL: ${{ secrets.EMAIL }}
           PASSWORD: ${{ secrets.PASSWORD }}
-          RESUME_PATH: "./HimaniCV.pdf"
-        run: python NaukriUpdateDaily.py
+        run: |
+          xvfb-run --auto-servernum python playwright/naukri_upload.py
