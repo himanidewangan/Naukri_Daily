@@ -2,8 +2,8 @@ import os
 import time
 from playwright.sync_api import sync_playwright
 
-NAUKRI_EMAIL = os.getenv("EMAIL")
-NAUKRI_PASSWORD = os.getenv("PASSWORD")
+EMAIL = os.getenv("EMAIL")
+PASSWORD = os.getenv("PASSWORD")
 RESUME_PATH = os.path.abspath("HimaniCV.pdf")
 
 def run():
@@ -14,50 +14,48 @@ def run():
         return
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False)
+        browser = p.chromium.launch(headless=True, args=["--disable-http2"])
         context = browser.new_context()
         page = context.new_page()
 
-        print("Opening login page...")
-        page.goto("https://www.naukri.com/nlogin/login", timeout=60000)
+        print("Opening login page…")
+        page.goto("https://www.naukri.com/nlogin/login")
 
         # Login
-        page.fill("#usernameField", NAUKRI_EMAIL)
-        page.fill("#passwordField", NAUKRI_PASSWORD)
+        page.fill("#usernameField", EMAIL)
+        page.fill("#passwordField", PASSWORD)
         page.click("button[type='submit']")
-        print("Logged in... waiting for redirect")
+        print("Logged in… waiting for home page…")
 
-        page.wait_for_timeout(6000)
+        page.wait_for_timeout(8000)
 
-        # Open Main Home Page (safe)
-        page.goto("https://www.naukri.com", timeout=60000)
-
-        # Click My Profile from top-right menu
-        print("Clicking My Profile…")
+        # Click profile icon (top right)
+        print("Clicking profile icon…")
         page.click("img[alt='naukri user profile']")
 
         page.wait_for_timeout(5000)
 
-        # Click “View & Update Profile”
+        # Click "View & Update Profile"
         print("Opening profile editor…")
         page.click("text=View & Update Profile")
 
-        page.wait_for_timeout(6000)
+        page.wait_for_timeout(8000)
 
-        # Scroll to resume section
-        print("Scrolling to resume upload...")
+        # Scroll to resume upload input
+        print("Scrolling…")
         page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
-        page.wait_for_timeout(2000)
+        page.wait_for_timeout(3000)
 
-        # Upload resume
-        print("Uploading resume...")
+        print("Uploading resume…")
         page.set_input_files("input[type='file']", RESUME_PATH)
 
-        print("Waiting for upload to finish…")
-        time.sleep(8)
-        print("✔ Resume uploaded successfully!")
+        print("Waiting for upload…")
+        time.sleep(10)
+
+        print("✔ SUCCESS: Resume uploaded!")
 
         browser.close()
+
 
 if __name__ == "__main__":
     run()
