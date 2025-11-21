@@ -1,107 +1,79 @@
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 import time
 import os
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+# ----------------------
+# CONFIG
+# ----------------------
 
-# ==== 🔐 Your Credentials & File ====
-NAUKRI_EMAIL = 'humanidewangan244@gmail.com'
-NAUKRI_PASSWORD = 'Himani@2000'
-RESUME_PATH = r'C:\Users\himani.dewangan\Naukri_Daily\HimaniCV.pdf' # Make sure this is correct
+NAUKRI_EMAIL = os.getenv("NAUKRI_EMAIL")
+NAUKRI_PASSWORD = os.getenv("NAUKRI_PASSWORD")
+RESUME_PATH = os.path.abspath("resume.pdf")
 
-# ==== 🚀 Main Function ====
+# ----------------------
+# BROWSER SETUP
+# ----------------------
+
+def get_driver():
+    chrome_options = Options()
+    chrome_options.add_argument("--disable-notifications")
+    chrome_options.add_argument("--start-maximized")
+
+    # Headless when running inside CI
+    if os.getenv("CI"):
+        chrome_options.add_argument("--headless=new")
+        chrome_options.add_argument("--disable-gpu")
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--disable-dev-shm-usage")
+
+    return webdriver.Chrome(options=chrome_options)
+
+# ----------------------
+# AUTOMATION
+# ----------------------
+
 def upload_resume():
-    # Set up Chrome driver
-    options = webdriver.ChromeOptions()
-    options.add_argument("--start-maximized")
-    driver = webdriver.Chrome(options=options)
+    print("Starting Naukri automation...")
 
+    if not os.path.exists(RESUME_PATH):
+        print("ERROR: Resume file not found:", RESUME_PATH)
+        return
+
+    driver = get_driver()
     wait = WebDriverWait(driver, 20)
 
     try:
-        # Step 1: Open Naukri homepage
-        driver.get("https://www.naukri.com/")
-        time.sleep(2)
+        # Login Page
+        driver.get("https://www.naukri.com/nlogin/login")
+        print("Opened login page")
 
-        # Step 2: Click on Login
-        login_button = wait.until(EC.element_to_be_clickable((By.ID, "login_Layer")))
-        login_button.click()
-        time.sleep(1)
+        wait.until(EC.presence_of_element_located((By.ID, "usernameField"))).send_keys(NAUKRI_EMAIL)
+        wait.until(EC.presence_of_element_located((By.ID, "passwordField"))).send_keys(NAUKRI_PASSWORD)
+        driver.find_element(By.XPATH, "//button[text()='Login']").click()
+        print("Logged in successfully")
 
-        # Step 3: Enter login details
-        email_input = wait.until(EC.visibility_of_element_located(
-            (By.XPATH, "//input[@placeholder='Enter your active Email ID / Username']")))
-        email_input.clear()
-        email_input.send_keys(NAUKRI_EMAIL)
+        # Go to Profile Page
+        wait.until(EC.presence_of_element_located((By.XPATH, "//a[contains(@href,'profile')]"))).click()
+        print("Opening profile page...")
 
-        password_input = wait.until(EC.visibility_of_element_located(
-            (By.XPATH, "//input[@placeholder='Enter your password']")))
-        password_input.clear()
-        password_input.send_keys(NAUKRI_PASSWORD)
-
-        # Step 4: Click Login
-        driver.find_element(By.XPATH, "//button[@type='submit']").click()
-        print(" Logged in successfully.")
-        time.sleep(5)
-
-        # Step 5: Go to profile page
-        driver.get("https://www.naukri.com/mnjuser/profile")
-        time.sleep(5)
-
-        # Step 6: Upload resume
+        # Upload Resume
         upload_input = wait.until(EC.presence_of_element_located((By.XPATH, "//input[@type='file']")))
         upload_input.send_keys(RESUME_PATH)
         print("Resume uploaded successfully!")
 
+        # Wait to ensure upload completes
         time.sleep(5)
-        send_success_email()
-
 
     except Exception as e:
-        print(" Error occurred:", e)
-        driver.save_screenshot("error.png")
+        print("ERROR:", e)
+
     finally:
         driver.quit()
 
 
-def send_success_email():
-    sender_email = "humanidewangan244@gmail.com"             # The Gmail used to send the mail
-    sender_app_password = "zcjordzxmcoiaemy"
-    receiver_email = "humanidewangan244@gmail.com"      # Your personal email
-
-    subject = " Naukri Resume Upload Success"
-    body = "Hi Himani,\n\nYour resume was successfully uploaded to Naukri.com.\n\nRegards,\nYour Automation Bot 🤖"
-
-    msg = MIMEMultipart()
-    msg['From'] = sender_email
-    msg['To'] = receiver_email
-    msg['Subject'] = subject
-
-    msg.attach(MIMEText(body, 'plain'))
-
-    try:
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.starttls()
-        server.login(sender_email, sender_app_password)
-        server.send_message(msg)
-        server.quit()
-        print(" Success email sent!")
-    except Exception as e:
-        print(" Failed to send email:", e)
-
-# ==== 🔁 Run It ====
 if __name__ == "__main__":
-    if os.path.exists(RESUME_PATH):
-        upload_resume()
-    else:
-        print(f" Resume file not found at: {RESUME_PATH}")
-
-
-
-
-
+    upload_resume()
